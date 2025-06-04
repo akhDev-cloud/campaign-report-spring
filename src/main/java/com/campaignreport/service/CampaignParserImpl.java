@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,15 +26,17 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class CampaignParserImpl {
+public class CampaignParserImpl implements CampaignParser{
 	
 	
 	private static final DateTimeFormatter INPUT_DATE_FORMAT =
             DateTimeFormatter.ofPattern("M/d/yy H:mm");
 
-    public Map<CampaignDateKey, AggregatedRecord> parseCostFileAndAggregateByCompanyAndDate(
-    		Path filePath,
+    public void parseCostFileAndAggregateByCompanyAndDate(
+    		String fileName,
     		Map<CampaignDateKey, AggregatedRecord> map) throws IOException {
+    	
+    	Path filePath = Paths.get(fileName);
     	
         try (BufferedReader reader = Files.newBufferedReader(filePath);
              CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT)) {
@@ -65,15 +68,17 @@ public class CampaignParserImpl {
                log.info("processed key {} and record {}", key, aggreagatedRecord);
             }
         }
-        return map;
+        
     }
     
     
-    public Map<CampaignDateKey, AggregatedRecord> parseRevenueFileAndAggregateByCompanyAndDate(
-    		Path filePath,
+    public void parseRevenueFileAndAggregateByCompanyAndDate(
+    		String fileName,
     		Map<CampaignDateKey, AggregatedRecord> map) throws IOException {
     	
-        try (BufferedReader reader = Files.newBufferedReader(filePath);
+    	Path filePath = Paths.get(fileName);
+        
+    	try (BufferedReader reader = Files.newBufferedReader(filePath);
              CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT)) {
 
             for (CSVRecord record : csvParser) {
@@ -100,7 +105,7 @@ public class CampaignParserImpl {
                log.info("processed key {} and record {}", key, aggreagatedRecord);
             }
         }
-        return map;
+       
     }
 
     private LocalDate parseDateToUTC(String dateStr) {
