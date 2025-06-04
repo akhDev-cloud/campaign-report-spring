@@ -18,9 +18,10 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 
+import com.campaignreport.model.AggregatedRecord;
+import com.campaignreport.model.CampaignDateKey;
+
 import lombok.extern.slf4j.Slf4j;
-import model.AggregatedRecord;
-import model.CampaignDateKey;
 
 @Service
 @Slf4j

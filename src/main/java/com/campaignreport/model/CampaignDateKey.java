@@ -1,4 +1,4 @@
-package model;
+package com.campaignreport.model;
 
 import java.time.LocalDate;
 import java.util.Objects;
