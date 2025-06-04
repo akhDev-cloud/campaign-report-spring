@@ -39,7 +39,7 @@ public class CampaignParserImpl implements CampaignParser{
     	Path filePath = Paths.get(fileName);
     	
         try (BufferedReader reader = Files.newBufferedReader(filePath);
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT)) {
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
 
             for (CSVRecord record : csvParser) {
                 String dataDateStr = record.get("data_date");   
@@ -79,7 +79,7 @@ public class CampaignParserImpl implements CampaignParser{
     	Path filePath = Paths.get(fileName);
         
     	try (BufferedReader reader = Files.newBufferedReader(filePath);
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT)) {
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
 
             for (CSVRecord record : csvParser) {
                 String dataDateStr = record.get("data_date");   
