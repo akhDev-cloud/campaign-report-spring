@@ -10,6 +10,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import com.campaignreport.constants.FileConstants;
+import com.campaignreport.constants.S3Properties;
 import com.campaignreport.model.AggregatedRecord;
 import com.campaignreport.model.CampaignDateKey;
 import com.campaignreport.repo.CampaignDataRepository;
@@ -32,6 +33,7 @@ public class Initializer implements ApplicationRunner{
 	private final S3Downloader s3Downloader;
 	private final CampaignParser parser;
 	private final CampaignAggregationService dataService;
+	private final S3Properties s3Properties;
 	
 
 	@Override
@@ -40,10 +42,10 @@ public class Initializer implements ApplicationRunner{
 		String costFileName = Strings.concat(FileConstants.LOCAL_PATH, COST_FILENAME);
 		String revenueFileName =  Strings.concat(FileConstants.LOCAL_PATH, REVENUE_FILENAME);
 		
-		log.info("running initializer");
+		log.info("starting initializer... please wait");
 	
-		downloadRemoteFile(s3Downloader, FileConstants.COSTS_DOWNLOAD_PATH, costFileName);
-		downloadRemoteFile(s3Downloader, FileConstants.REVENUE_DOWNLOAD_PATH, revenueFileName);
+		downloadRemoteFile(s3Downloader, s3Properties.getCostDownloadPath(), costFileName);
+		downloadRemoteFile(s3Downloader, s3Properties.getRevenueDownloadPath(), revenueFileName);
 		
 		parser.parseCostFileAndAggregateByCompanyAndDate(costFileName, CampaignDataRepository.campaignMap);
 		log.info("file cost processed");
@@ -58,6 +60,7 @@ public class Initializer implements ApplicationRunner{
 		
 		CsvWriter.writeMapToCsv(CampaignDataRepository.campaignMap, Strings.concat(FileConstants.LOCAL_PATH, "output.csv"));
 		log.info("output file created");
+		log.info("initializer finished, application is ready for usage");
 	}
 
 

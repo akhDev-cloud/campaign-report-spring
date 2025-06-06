@@ -14,6 +14,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.campaignreport.constants.FileConstants;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,6 +26,13 @@ public class S3Downloader {
 
     public void download(String url, String localFileName) throws IOException {
     	
+    	if(url == null || url.isBlank()) {
+    		log.warn("can't download files please pass env variables {} and {}",
+    				FileConstants.ENV_VAR_NAME_COST_PATH,
+    				FileConstants.ENV_VAR_NAME_REVENUE_PATH);
+    		return;
+    	}
+    		
     	Path path = Paths.get(localFileName);
         Files.createDirectories(path.getParent());
         File file = new File(localFileName);

@@ -3,6 +3,7 @@ package com.campaignreport.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +25,8 @@ public class AnalyticsController {
 	
 	@GetMapping("/records")
 	ResponseEntity<List<AggregatedRecordDto>> recordsByDate(
-			@RequestParam LocalDate dateFrom,
-			@RequestParam LocalDate dateTo){
+			@RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") LocalDate dateFrom,
+			@RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") LocalDate dateTo){
 		
 		List<AggregatedRecordDto> data = aggregationService.recordsByDate(dateFrom, dateTo);
 		

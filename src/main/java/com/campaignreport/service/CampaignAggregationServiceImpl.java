@@ -50,7 +50,7 @@ public class CampaignAggregationServiceImpl implements CampaignAggregationServic
 	@Override
 	public List<AggregatedRecordDto> recordsByDate(LocalDate dateFrom, LocalDate dateTo) {
 		
-		return CampaignDataRepository.dateMap.subMap(dateFrom, dateTo)
+		return CampaignDataRepository.dateMap.subMap(dateFrom, true, dateTo, true)
 				.values()
 				.stream()
 				.flatMap(List::stream)
