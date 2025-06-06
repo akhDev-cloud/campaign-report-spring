@@ -20,6 +20,12 @@ public class AggregatedRecord {
     private int totalClicks;
     private double totalCost;
     private double totalRevenue;
+    
+    // Enriched fields
+    private double uv;     // revenue per click
+    private double cpc;    // cost per click
+    private double roi;    // uv / cpc
+    private double profit; // revenue - cost
 	
     public AggregatedRecord(LocalDate date, String campaignId, double totalRevenue) {
 		super();

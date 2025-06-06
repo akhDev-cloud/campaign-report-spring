@@ -8,10 +8,10 @@ import com.campaignreport.model.AggregatedRecord;
 import com.campaignreport.model.CampaignDateKey;
 
 public interface CampaignParser {
-	 public void parseCostFileAndAggregateByCompanyAndDate(
+	 void parseCostFileAndAggregateByCompanyAndDate(
 			 	String fileName,
 	    		Map<CampaignDateKey, AggregatedRecord> map) throws IOException;
-	 public void parseRevenueFileAndAggregateByCompanyAndDate(
+	 void parseRevenueFileAndAggregateByCompanyAndDate(
 			 	String fileName,
 	    		Map<CampaignDateKey, AggregatedRecord> map) throws IOException;
 	 

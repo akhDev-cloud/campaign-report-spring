@@ -1,5 +1,6 @@
 package com.campaignreport.boot;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Component;
 import com.campaignreport.constants.FileConstants;
 import com.campaignreport.model.AggregatedRecord;
 import com.campaignreport.model.CampaignDateKey;
+import com.campaignreport.repo.CampaignDataRepository;
+import com.campaignreport.service.CampaignAggregationService;
 import com.campaignreport.service.CampaignParser;
+import com.campaignreport.utils.CsvWriter;
 import com.campaignreport.utils.S3Downloader;
 
 import lombok.RequiredArgsConstructor;
@@ -22,29 +26,49 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class Initializer implements ApplicationRunner{
 	
+	private final String COST_FILENAME = "cost_1.csv";
+	private final String REVENUE_FILENAME = "revenue_1.csv";
+	
 	private final S3Downloader s3Downloader;
 	private final CampaignParser parser;
+	private final CampaignAggregationService dataService;
+	
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		Map<CampaignDateKey, AggregatedRecord> map = new HashMap<>();
 		
-		String costFileName = Strings.concat(FileConstants.DOWNLOAD_PATH, "cost_1.csv");
-		String revenueFileName =  Strings.concat(FileConstants.DOWNLOAD_PATH, "revenue_1.csv");
+		String costFileName = Strings.concat(FileConstants.LOCAL_PATH, COST_FILENAME);
+		String revenueFileName =  Strings.concat(FileConstants.LOCAL_PATH, REVENUE_FILENAME);
 		
 		log.info("running initializer");
-		s3Downloader.download(
-			    "https://s3.amazonaws.com/frontstory-test-data/server-side/cost_1.csv",
-			    costFileName
-			);
-		log.info("file cost persists locally");
-		s3Downloader.download(
-			    "https://s3.amazonaws.com/frontstory-test-data/server-side/revenue_1.csv",
-			    revenueFileName
-			);
-		log.info("file revenue persists locally");
+	
+		downloadRemoteFile(s3Downloader, FileConstants.COSTS_DOWNLOAD_PATH, costFileName);
+		downloadRemoteFile(s3Downloader, FileConstants.REVENUE_DOWNLOAD_PATH, revenueFileName);
 		
-		parser.parseCostFileAndAggregateByCompanyAndDate(costFileName, map);
+		parser.parseCostFileAndAggregateByCompanyAndDate(costFileName, CampaignDataRepository.campaignMap);
+		log.info("file cost processed");
+		parser.parseRevenueFileAndAggregateByCompanyAndDate(revenueFileName, CampaignDataRepository.campaignMap);
+		log.info("file revenue processed");
+		
+		dataService.enrichAggregatedData(CampaignDataRepository.campaignMap);
+		log.info("map enriched");
+		
+		CampaignDataRepository.GroupDataByDate(dataService);
+		log.info("sorting by date finished");
+		
+		CsvWriter.writeMapToCsv(CampaignDataRepository.campaignMap, Strings.concat(FileConstants.LOCAL_PATH, "output.csv"));
+		log.info("output file created");
+	}
+
+
+	private void downloadRemoteFile(S3Downloader s3Downloader, String fileDownloadPath, String localPathToSave) throws IOException {
+		
+		s3Downloader.download(
+				fileDownloadPath,
+				localPathToSave
+			);
+		log.info("file {} persists locally", localPathToSave);
+		
 	}
 
 }

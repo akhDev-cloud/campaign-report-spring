@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
@@ -65,7 +66,7 @@ public class CampaignParserImpl implements CampaignParser{
                 });
                 
 
-               log.info("processed key {} and record {}", key, aggreagatedRecord);
+               log.debug("processed key {} and record {}", key, aggreagatedRecord);
             }
         }
         
@@ -80,11 +81,21 @@ public class CampaignParserImpl implements CampaignParser{
         
     	try (BufferedReader reader = Files.newBufferedReader(filePath);
              CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-
+    		List<String> headers = csvParser.getHeaderNames();
+    		log.debug("headers of the file {} are {}", filePath, headers);
+    		
             for (CSVRecord record : csvParser) {
+            	
                 String dataDateStr = record.get("data_date");   
                 String campaignId = record.get("campaign_id");
-                double revenue = Double.parseDouble(record.get("revenue"));
+                String revenueString = record.get("revenue");
+                
+                double revenue;
+                if(revenueString == null || revenueString.isEmpty()) {
+                	revenue = 0;
+                }
+                else 
+                	revenue = Double.parseDouble(revenueString);
 
                 // Parse and convert date from EST to UTC
                 LocalDate utcDate = parseDateToUTC(dataDateStr);
@@ -102,7 +113,7 @@ public class CampaignParserImpl implements CampaignParser{
                 });
                 
 
-               log.info("processed key {} and record {}", key, aggreagatedRecord);
+               log.debug("processed key {} and record {}", key, aggreagatedRecord);
             }
         }
        
@@ -114,12 +125,15 @@ public class CampaignParserImpl implements CampaignParser{
 
         // EST timezone
         ZoneId estZone = ZoneId.of("America/New_York");
+       
 
         // Convert to ZonedDateTime in EST
         ZonedDateTime estZonedDateTime = estDateTime.atZone(estZone);
 
         // Convert to UTC
         ZonedDateTime utcZonedDateTime = estZonedDateTime.withZoneSameInstant(ZoneOffset.UTC);
+        
+        log.debug("input data {}, EST time {}, UTC time {}", dateStr, estZonedDateTime, utcZonedDateTime);
 
         // Return UTC date only (no time)
         return utcZonedDateTime.toLocalDate();
